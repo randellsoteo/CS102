@@ -1,0 +1,221 @@
+---
+title: "Importing/Exporting of Data"
+author: "Joyce F. Jamile"
+subtitle: Use of MySQL
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Creating connections
+
++ You must have a database first before connecting the RStudio into a database. Depending on the database, a package should be installed like **RMySQL**, **RPostGre**, **MariaDB** to name a few.
+
+> `dbConnect()` is being used to connect the R into MySQL
+
+```{r}
+library(dplyr,dbplyr)
+library(RMariaDB) 
+
+#creating connections
+connection <- dbConnect(RMariaDB::MariaDB(), 
+                        dsn="MySQL-connection",
+                        Server = "localhost",
+                        dbname = "CS102_Soteo", 
+                        user = "root", 
+                        password = "") #PWD is the password of your MySQL
+                        
+```
+
+
+### Listing the tables
+
++ Once connected, `dbListTables` to show or list the tables.
+
+
+
+```{r}
+#listing the tables of the sample_db 
+dbListTables(connection)
+```
+
+
+```{r}
+#listing the fields of the authors in the table sample_db
+dbListFields(connection,"activity5")
+```
+
+### Getting data from MySQL
+
++ using the *`dbGetQuery`* is being used to get the data
+
++ SQL commands were `SELECT` and `FROM`
+
+
+```{r}
+act5_dta <- dbGetQuery(connection, "SELECT * FROM CS102_Soteo.activity5")
+# checking for the columns and its content
+glimpse(act5_dta)
+```
+
+```{r}
+#getting all data using SELECT * FROM dbaseName
+empi_data <- dbGetQuery(connection, "SELECT * FROM sample_db.authors")
+# checking for the columns and its content
+glimpse(empi_data)
+```
+
+
+```{r}
+#getting all data using SELECT * FROM dbaseName
+empi_data[c(1:10),]
+```
+
+```{r}
+empi_data <- dbGetQuery(connection, "SELECT * FROM sample_db.authors")
+tail(empi_data)
+```
+
+```{r}
+#alternative way to display selected fields
+#displays the selected fields of the table
+posts_data <- dbGetQuery(connection, "SELECT title,description FROM sample_db.posts")
+posts_data[c(1:2),]
+```
+
+```{r}
+#getting all data using SELECT * FROM dbaseName
+SqlQuery <- "
+  SELECT title,description 
+  FROM sample_db.posts
+  "
+
+as_tibble(dbGetQuery(connection,SqlQuery))
+```
+
+### Inserting values into a Table
+
+```{r 1}
+# insert values into MySQL
+query <- "INSERT INTO activity5 (Usernames, Reviewer_Date, Reviewer_Content, Rating) VALUES ('=G=', '11 December 2001', 'Color me stupid but I thought *Pulp Fiction* sucked. Being creative is easy when there are no rules...as in fantasies and cartoons and, well, pulp fiction. Creativity is not easy when the rules of reality are imposed. The reason why it took me several sessions over several  years to finally assimilate this boring piece of filmdom crap is simply because its silly story and peculiar characters are one dimensional sensationalistic nonsense which almost anyone could have created and I personally found them boring...not unlike Sunday morning cartoons. Of course that criticism flies in a face of incredible popularity by the public and critics alike not to mention an Oscar and countless other awards. Go figure. Bottom line, *Pulp...* -is- pulp fiction brought to the big screen with all the gratuitous filth and violence of a dime novel but without the one thing which could really have made it interesting. Why no T&A???', '10/10')"
+
+# Execute the query
+query_result <- dbSendQuery(connection, query)
+
+# clear the result after executing the query
+dbClearResult(query_result)
+```
+
+```{r 2}
+# insert values into MySQL
+query <- "INSERT INTO activity5 (Usernames, Reviewer_Date, Reviewer_Content, Rating) VALUES ('1bilbo', '3 April 2004', 'As with the other two films in the series I wonder if the director actually read the book or just had a secretary read bits of it to him.The scenes are drawn out to ridiculously tedious lengths and bits of the plot are missed out whilst other bits are invented. And of course to appeal to the "ER" watching mentality a romance was invented for the film. Then to add further insult they all burst into song at the end.I don't know if these films were made chronologically but the actors do seem a bit fed up of the characters by the end. Also, our Shelob was so obviously a computer animation it made the pseudo scary build up a complete anticlimax.Tedious.
+', 'NA')"
+
+# Execute the query
+query_result <- dbSendQuery(connection, query)
+
+# clear the result after executing the query
+dbClearResult(query_result)
+```
+
+```{r 3}
+# insert values into MySQL
+query <- "INSERT INTO activity5 (Usernames, Reviewer_Date, Reviewer_Content, Rating) VALUES ('3xHCCH', '15 July 2010', 'What drew me to watch this film on the very first day of theatrical showing was the cast, which was an incredible array of some of the most intense actors in Hollywood today. We have Ken Watanabe, Cilian Murphy, Marion Cotillard, Michael Caine, Tom Berenger, Pete Postlethwait, and in the lead, none other than Leonardo di Caprio. The director and writer Christopher Nolan also comes with a very impressive oeuvre behind him, with *Memento,* *The Prestige,* and most recently, *The Dark Knight.*This film is one of the most complicated films I have seen. A fair summary is almost impossible to put into words. It is challenging to follow all the jumping into and out of dreams, in dreams within dreams. I won't be surprised if you do not completely understand everything that was going on by the end. However, the visual experience of being in this multi-layered dream world is unmatchable in any recent films.I thought of *The Matrix,* and even Leo's latest (excellent) work *Shutter Island,* as this film proceeds to disorient you about what is and is not reality. However, *Inception* goes several levels higher in the hierarchy of convolutions in film. There are at least four levels of simultaneous dream upon dream happening at one time at one point. Amazing film editing work!Then there are technical aspects which were mind-boggling indeed, as Nolan's bizarre script required. The audience is brought inside buildings, rooms, elevators, even entire cities where you lose the sense of space, time, gravity and logic. It is a dream world--you need to see it to fully appreciate what I just wrote. The musical score of Hans Zimmer was strong and dramatic. These are definitely contenders by Oscar time.This film is not for everyone. There are those who would dismiss this as impossibly pretentious and pointless. But for me, *Inception* was very stimulating and challenging -- a film well-worthy to spend two and a half hours of our valuable time. Be ready to face this challenge when you go watch it. I won't be surprised if you feel you need to watch it all over again.', '2/10')"
+
+# Execute the query
+query_result <- dbSendQuery(connection, query)
+
+# clear the result after executing the query
+dbClearResult(query_result)
+```
+
+```{r 4}
+# insert values into MySQL
+query <- "INSERT INTO activity5 (Usernames, Reviewer_Date, Reviewer_Content, Rating) VALUES ('A_Different_Drummer', '9 September 2016', 'One of the original Leone *Italian Westerns* that quickened the pulse of a young Quentin Tarantino.Sometimes I think I am living in a time warp. I watched all the Leone films in theatres in real time and was mesmerized, gob-smacked, and exhilarated. Now in the far future (2016) I watch QT do his knock-offs, and the young audiences (who have never seen the originals) think his are the originals, and everything else the knockoffs.(Reminds me of the Old King Cole nursery rhyme -- *pulled out a plum and said What a Good Boy Am I* -- another reference lost on those living the age of portable devices.) For those who actually care about the history of film: * Leone invented a brand new genre called the Italian western. His first, Fistful of Dollars, recycled a Japanese story (Yojimbo), recycled an American ex-pat whose Hollywood career was officially over (Eastwood) and introduced one of the greatest music composers of the modern film era, Ennio Morricone.* next came For a Few Dollars More, an original story, which locked into film history Leone's trademark use of closeups and sound editing, and brought out of mothballs Lee Van Cleef, one of the greatest *faces* in the history of the western. (*Angel Eyes* in this one.) * with two international hits under his belt, Leone aimed for the stars and created this movie which marks his legacy. While simultaneously continuing the tradition he started, and using the two stars from his second film, he gave Eli Wallach (an A-list star from the 1950s) the role of his career. Wait there is more. He set the story against the backdrop of the Civil War and manged to make the transitions seamless and brutally compelling. it is simultaneously a violent film and an anti-war film at the same time! (The only film of Leone's that may compete with this one is Once Upon a Time in America, also reviewed by this writer on the IMDb).By modern standards the film is overlong and, had it been produced in America (as was indeed the case with Upon a Time in America), the *suits* would have butchered it down to 100 minutes. Luckily for the rest of us, this was an international release, cut-proof, and survives very nicely to the present day in its original form.QT was a young lad when these films appeared but the impact is clear. He used Morricone's music in Kill Bill (his best film in my view) and in my view The Hateful Eight tries to emulate the power of Leone but falls somewhat short.For you youngsters out there, I recommend these films as some of the most entertaining efforts ever set to film, period. Imitated but not duplicated.Astonishing, mind-blowing, unforgettable.', '10/10')"
+
+# Execute the query
+query_result <- dbSendQuery(connection, query)
+
+# clear the result after executing the query
+dbClearResult(query_result)
+```
+
+```{r 5}
+# insert values into MySQL
+query <- "INSERT INTO activity5 (Usernames, Reviewer_Date, Reviewer_Content, Rating) VALUES ('A_Kind_Of_CineMagic', '29 April 2009', 'A lot of people looking on this page will thoroughly disagree and disregard my comments but I feel justified in saying that the Lord of the Rings trilogy and this final part in particular are possibly some of the most over-rated films of all time! I hasten to add that I do like the films and rate them as very good 7 or 8 out of 10 but I just do not see them as the 10/10 all time greats that other people see them as. I love fantasy stories and films in general, I just find these films to be far less impressive than most people appear to think they are. The main thing in the trilogy I find absolutely impressive is Gollum (Andy Serkis). The motion capture performance by Serkis is genius and the CGI character was the best up to that time. Also Gollum is a great character, hilarious, sometimes creepy and fascinating. Also you cannot fault Christopher Lee as Saruman, Ian McKellen as Gandalf and there are other good performances too.Most people who loved the books or loves this kind of story understandably lap the films up enthusiastically. An epic, massive budget presentation of one of the most famous and loved fantasy stories is somewhat irresistible to anyone who likes fantasy stories at all. However, I was a little bit underwhelmed on my first viewing of the films and have remained so with each viewing. They are not bad films at all. They have great spectacle, have some epic action, some scenes with effective humour or emotion and some fine actors but there is a lot I find disappointing. LOTR would be extremely difficult to adapt to film for anybody and I don't think these films do it as well as they could. There is a lot of time wasted unnecessarily and important aspects of story and character are left out or underdeveloped.I find Peter Jackson generally a far from 100% successful director. His version of King Kong is poor and shows his faults even a lot more than the LOTR trilogy. All these Jackson made films are a bit overblown and a little pretentiously directed. Extremely long shots of characters gazing into camera, at each other or into the distance occur so often it is incredible. A great director does not need words to tell a story or convey emotion and the face and eyes of an actor can be used to huge effect. But most shots of characters without dialogue in this trilogy fail to make me feel anything other than they are wasting time! Frodo (Elijah Wood) especially just gazes or gawps for what seems like ages without making me connect with his feelings and without moving the character or story on at all.CGI is the real king in these films and as impressive as many scenes are, it never thrills as much as the real scenery or real action in some older epics. The epic spectacle is therefore not enough to carry me away on its own, it requires great storytelling. Some great storytelling does occur in these films but I do not feel Tolkein's story or characters are done full justice due to Jackson wasting time on 'pretty', glossy, showy film making. A real efficiency and supreme skill was needed to get the most from the source material and this is lacking. For instance, Return of the King misses out important aspects of Aragorn, Feramir and Saruman's stories and I find Frodo comes across as rather petulant, annoying and lacking heroism. Samwise comes across a lot better.A great villain completes a great story. Sauron appears a feeble 'villain' throughout the trilogy. A flaming eye is not exactly Darth Vader! Tolkein created a villain difficult to show effectively on screen and Jackson's presentation of Sauron fails to convey threat or menace at all. Saruman is a good villain and is brilliantly acted by Christopher Lee but has totally insufficient screen time, particularly in the final story where he goes straight to DVD!Overall The Return of the King is easily the weakest of the trilogy for my tastes featuring faults I have listed above, rather overblown CGI action and an extraordinarily dragged out ending.Yes these films are very good but for me they are nowhere near the classics they are reputed to be or that they could have been if perfectly directed.', '10/10')"
+
+# Execute the query
+query_result <- dbSendQuery(connection, query)
+
+# clear the result after executing the query
+dbClearResult(query_result)
+```
+
+```{r 6}
+# insert values into MySQL
+query <- "INSERT INTO activity5 (Usernames, Reviewer_Date, Reviewer_Content, Rating) VALUES ('a_southern_knight', '16 August 2004', 'This is the third,and arguably the best, of the so-called *spaghetti western* trilogy. It is ironic that, at the time the three Sergio Leone westerns were released, they were largely panned by critics as being poor and even laughable imitations of American-made westerns. The fact that they were filmed in Italy and Spain resulted in them receiving their amusing nickname which was intended to degrade them at the time.Somehow, over the quarter century or so since their release, the critics have tended to change their opinions, and now these movies are generally regarded as classics. Perhaps this is because Clint Eastwood was principally known only as the second banana, Rowdy Yates, in the television series *Rawhide* when the films were produced but since then has achieved superstardom. But I also think it goes beyond that. I believe the critics decided to take another look at these films and realized that they had been premature in writing them off. Actually, I believe the three films were considerably better than most of what Hollywood produced. In fact, I think that TGTBATU ranks among the best westerns ever produced bringing to mind the magnificent films of John Ford, the undisputed master of that genre, and his protege, the incomparable John Wayne. I have nothing but praise for this film. In fact, I rank it as one of my favorite films of all time. I could write volumes of what is good about this film. But since its qualities have been oft repeated in other viewer reviews, I will focus on what others didn't like about it. Most of the IMDb reviews had only one major complaint: the film is too long. I disagree. In fact, in spite of its nearly three hour length, I was disappointed that it ended. I was so absorbed in the film that I was disheartened to have to return to reality. The combination of story, cinematography, acting and musical score left nothing to be desired other than more of the same! The sequences that seemed to drag on in the opinion of other reviewers were necessary to fully create moods and to drive home important points. For example, the opening sequence might be regarded as needlessly long as Angel Eyes taunts a hapless man over a leisurely meal. But to me, scenes like that are what makes the movie great! The time allows the viewer to fully appreciate the amazing replication of the primitive home and the pitiful life of its dirt-poor inhabitants. I felt as though I was sitting there at the table; I was half tempted to reach for a bowl and spoon to partake of the meal. And all the while the suspense was building towards the inevitable climax. You know it's coming but not when and the length of the scene drives you crazy but makes it all the more satisfying when it does happen. Another example is when Tuco punishes Joe by forcing him to walk through the desert. This is possibly the only time that one might become bored with the film. But again, I think the time for the scene was justified in that we are able to receive the full impact of that experience and enjoy the haunting music at the same time. Joe's subsequent predicament might not have had much credibility had this sequence been abbreviated. In my opinion, one of the essential elements of a great film is creating moods that absorb our attention. This often takes time, lots of time. For example, many of the scenes in the magnificent film *Dr. Zhivago* were almost painfully long but they were necessary to create those startling surrealistic moods, and the film would not have been great without them. In many ways, TGTBATU has this same sort of greatness. It is a sweeping epic with very compelling characters and magnificent settings that draws the viewer in and doesn't release him until the closing credits begin to roll. When it's over, you feel that you've been on a long and exciting journey. Such a journey takes time.In summary, if you haven't seen this film, buy it right away. Don't rent it because you will not want to part with it once you've seen it.Then curl up with it on a cold, rainy Sunday afternoon when you are in no hurry to do anything.', '9/10')"
+
+# Execute the query
+query_result <- dbSendQuery(connection, query)
+
+# clear the result after executing the query
+dbClearResult(query_result)
+```
+
+```{r 7}
+# insert values into MySQL
+query <- "INSERT INTO activity5 (Usernames, Reviewer_Date, Reviewer_Content, Rating) VALUES ('A_Voice', '15 January 2014', 'Years ago when I first saw this film, that too without any knowledge of the plot and without reading the books, I expected it to be a normal fantasy franchise with loads of CGI. But when I actually watched it, I was hooked to my seat and completed the 11 and a half hour trilogy in one sitting (Extended edition, mind it!). It is a kind of the movie that needs to be re watched time and again to be understood completely. I was so influenced with the films that I started reading about various characters on the internet and finally decided to read the books including the Hobbit. And then I realized how well adapted this franchise really is!!.The story begins with the introduction of the war of Sauron and the forging of all rings. The one ring which was thought to be lost is rediscovered and the Dark Lord rises again to re claim his lost treasure. An unlikely fellowship is formed to go on an unlikely never before held quest.Many critics criticize the length of the film, but after actually reading the books, one realizes it couldn't have been shorter. After every viewing it discloses something new, some references that were previously unnoticed and are a delight for the the book readers. Like the references to Smaug at the start, the undying lands Valor etc. The list goes on and on.It fairs even better as a stand alone film. If Tolkien was alive, Jackson's vision of middle earth and its characters certainly would have made him proud. With some excellent sets, locations and character designs and visual effects including sound and original score, it was probably the best film on a technical front in years. Each character constructed with minutest of detail. The Balrog managed to strike fear in the viewers eyes as much as it did to Gandalf The Grey. The fair Elves who are the most beautiful creatures on middle earth. The film has some extremely good cinematography.As the story itself is more of a adventure, thus it lacks character development and is less of a character driven story but more of an event driven. Also, there are many character so one can't focus on each of them for all the time. But traces are there in Gandalf's, Sam's or Gimili's characters which have been developed quite a bit. Ian portrays an awesome performance and he is *Gandalf*.Direction: Excellent and flawless.Story/Screenplay: Couldn't have been better. Extraordinarily awesome.Acting: Ian was best, Sean was good. Others were convincing.Music: One of the best musical scores ever. It is haunting when it has to be, charming when it needs to be and fitting all the time. Shore has done an excellent job creating the score and incorporating it with chants which have a 'mythological' feel to them, just splendid.Probably the best possible start to an extraordinary trilogy.', '10/10')"
+
+# Execute the query
+query_result <- dbSendQuery(connection, query)
+
+# clear the result after executing the query
+dbClearResult(query_result)
+```
+
+```{r 8}
+# insert values into MySQL
+query <- "INSERT INTO activity5 (Usernames, Reviewer_Date, Reviewer_Content, Rating) VALUES ('a-07779-75123', '4 August 2020', 'Some off the best cinematography of the 90's with the direction/writing from one of the greats. The ensemble cast and colorful dialogue will stand the test of time in cinema.', '10/10')"
+
+# Execute the query
+query_result <- dbSendQuery(connection, query)
+
+# clear the result after executing the query
+dbClearResult(query_result)
+```
+
+```{r 9}
+# insert values into MySQL
+query <- "INSERT INTO activity5 (Usernames, Reviewer_Date, Reviewer_Content, Rating) VALUES ('aadishah', '2 February 2019', 'I am thoroughly thrilled; I do not usually watch old movies but I found this to be among the top rated IMDb movies and I thought I might as well give it a shot. Right when the movie started, I had a feeling it would be good, because it didn't start out linearly, a court hearing had just ended and the jurors were instructed on making a decision. The jurors gathered up in the Jury Room and oh boy, was it amazing. The whole movie was shot in that room and it is near impossible finding such good storytelling. The entire crime was narrated so perfectly not by actually showing the crime but with words and 'facts'. The direction is out of this world! I mean, you could feel that tension in the room and I have to stress that the actors have done a fantastic, fantastic job! The concept of 'reasonable doubt', the little moments of fun, the little moments of temper, the little moments of feelings, everything was just perfect! It's really not a shocker why this is among the top rated, the rating does the movie justice. Hands down genius.', 'NA')"
+
+# Execute the query
+query_result <- dbSendQuery(connection, query)
+
+# clear the result after executing the query
+dbClearResult(query_result)
+```
+
+```{r 10}
+# insert values into MySQL
+query <- "INSERT INTO activity5 (Usernames, Reviewer_Date, Reviewer_Content, Rating) VALUES ('Aaron1375', '11 January 2004', 'This was probably my favorite trilogy of all time, as throughout movie history there have not been all that many good fantasy movies that have been released so these films fill that void for me.  This last chapter wraps up the story nicely as Frodo and Sam are very close to where they need to be and the army of Sauron are trying to finish off man once and for all.  This movie is a bit different than the last one in the fact that the Hobbits Frodo and Sam and Gandolf the wizard are more of the focus of this one rather than Aragon, Gimli, and Legolos who were more the focus of the last one.  This one has epic battles and great visuals as well.  It is also very well acted.  Sean Astin does a particularly good job as Sam in this one as his character has a lot more impact in this one.  All in all a very good movie that wrapped up a very good trilogy that was one of the few that did not have a weak movie in the bunch.  I would write more, but I am sure there are plenty of reviews that do the movie more justice than I can.', '10/10')"
+
+# Execute the query
+query_result <- dbSendQuery(connection, query)
+
+# clear the result after executing the query
+dbClearResult(query_result)
+```
+
+```{r}
+#checking if the value was inserted into a table
+tail(empi_data)
+```
+```{r}
+#disconnect from dbase
+dbDisconnect(connection)
+```
