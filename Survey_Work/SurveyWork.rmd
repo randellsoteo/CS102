@@ -1,7 +1,9 @@
 ---
 title: "Survey Work"
 date: "2024-05-03"
-output: pdf
+output:
+  pdf: default
+  pdf_document: default
 ---
 
 # Mean, Standard Deviation and Factoring the Data
@@ -232,40 +234,28 @@ bar_chart_merged_schools
 
 
 ```{r Course, Year, and Section}
-# Define the similar responses to be merged
-similar_responses <- list(
-  c("BSIT 2B", "BSIT -2B", "BSIT 2-B", 	"BS IT 2-B" )
-)
+# Define the list of similar courses for BSIT
+similar_courses_BSIT <- c("BSIT 2B", "BSIT -2B", "BSIT 2-B ", "BS IT 2-B", "BSIT-2B")
 
-# Function to merge similar responses
-merge_similar <- function(x) {
-  for (pair in similar_responses) {
-    if (x %in% pair) {
-      return(pair[[1]])
-    }
-  }
-  return(x)
-}
+# Define the list of similar courses for BSA
+similar_courses_BSA <- c("BSA 1 -B", "BSA 1B")
 
-# Apply the merge_similar function to the combined column
-data <- mutate(data, Course..Year.and.Section..ex..BSIT.2.B. = sapply(Course..Year.and.Section..ex..BSIT.2.B., merge_similar))
+# Create a new column to map similar courses to a common category for BSIT
+data$Merged_Course <- ifelse(data$Course..Year.and.Section..ex..BSIT.2.B. %in% similar_courses_BSIT, "BSIT 2-B", data$Course..Year.and.Section..ex..BSIT.2.B.)
 
-# Remove N/A values
-data <- data %>%
-  filter(Course..Year.and.Section..ex..BSIT.2.B. != "N/A")
+# Create a new column to map similar courses to a common category for BSA
+data$Merged_Course[data$Course..Year.and.Section..ex..BSIT.2.B. %in% similar_courses_BSA] <- "BSA 1-B"
 
-# Aggregate counts for each unique combination of the combined column
-combined_column_counts <- data %>%
-  group_by(Course..Year.and.Section..ex..BSIT.2.B.) %>%
-  summarise(count = n()) %>%
-  ungroup()
+# Aggregate counts for the common categories for both BSIT and BSA
+merged_course_counts <- aggregate(Course..Year.and.Section..ex..BSIT.2.B. ~ Merged_Course, data, length)
 
-# Create bar chart using Plotly
-bar_chart_combined_column <- plot_ly(data = combined_column_counts, x = ~Course..Year.and.Section..ex..BSIT.2.B., y = ~count, type = "bar") %>%
-  layout(title = "Course, Year, and Section", xaxis = list(title = "Course, Year, and Section", categoryorder = "total descending"), yaxis = list(title = "Count"))
+# Create bar chart using Plotly with merged data for both BSIT and BSA
+bar_chart_merged_courses <- plot_ly(x = merged_course_counts$Merged_Course, y = merged_course_counts$Course..Year.and.Section..ex..BSIT.2.B., type = "bar") %>%
+  layout(title = "Course Distribution", xaxis = list(title = "Course", tickangle = 45, categoryorder = "total descending"), yaxis = list(title = "Count"))
 
-# Print the chart
-bar_chart_combined_column
+# Print the bar chart
+bar_chart_merged_courses
+
 ```
 
 
